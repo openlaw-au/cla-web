@@ -1,21 +1,26 @@
 # cla-web
 
 Websites for the **Commercial Law Association of Australia** — hosting the Commercial Law
-Quarterly and providing a browser-based **ProseMirror** editor for final proof editing.
+Quarterly and providing a browser-based surface for final proof editing.
 
-## Scope
+## Contents
 
-- **CLQ hosting** — publish each issue (PDF + a web reading view) from `cla-clq`.
-- **ProseMirror proofing** — a rich-text editor for editors to make final proof changes
-  without touching LaTeX. Article stored as Markdown / pandoc-JSON; on save, the pipeline in
-  `cla-tamara-print` renders LaTeX → PDF. Round-trip fidelity (footnotes, italic case names,
-  small caps) is the thing to get right.
+- **`editor/`** — the **CLQ Proofing Editor** (v0): a self-contained ProseMirror app that
+  round-trips Markdown (headings, italics, bold, quotes, lists, footnotes) so editors proof
+  in rich text, never in LaTeX. See `editor/README.md`.
+- **`docs/overleaf.md`** — the **interim proofing surface**: Overleaf's Visual Editor synced
+  to `cla-clq`. Works today, zero build, can't drift from the LaTeX. Recommended until the
+  ProseMirror editor is production-grade.
+- **`docs/architecture.md`** — the overall design (CLQ hosting + the proofing round-trip).
+
+## Two jobs
+
+1. **Publish CLQ** — present built issues from `openlaw-au/cla-clq` (PDF + a web reading
+   view).
+2. **Proof editing** — let editors correct copy without touching LaTeX; the press build
+   always happens in `cla-tamara-print`'s CI.
 
 ## Status
 
-Scaffold only. See `docs/architecture.md` for the proposed stack and the proofing
-round-trip design. Repo is private until the site is ready; then:
-
-```bash
-gh repo edit openlaw-au/cla-web --visibility public
-```
+Editor is a working v0 scaffold; hosting is still to be built. Repo is private until the
+site is ready — then `gh repo edit openlaw-au/cla-web --visibility public`.
