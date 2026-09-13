@@ -43,21 +43,6 @@ jobs:
           mkdir -p site/data dist/issues
           # cumulative index (for per-issue article lists) + the searchable archive page
           cp _clq/index/all_index.json site/data/all_index.json || echo "::warning::all_index.json not found in cla-clq"
-          cp _clq/index/clq_archive.html dist/archive.html || echo "::warning::clq_archive.html not found in cla-clq"
-          # copy each published issue's press PDF to the path issues.json references
-          python3 - <<'PY'
-          import json, glob, shutil, pathlib
-          m = json.load(open("site/issues.json"))
-          for it in m.get("issues", []):
-              folder = it.get("clq_folder"); dest = it.get("pdf")
-              if not folder or not dest: continue
-              src = sorted(glob.glob(f"_clq/issues/{folder}/pdf/*.pdf"))
-              if not src:
-                  print(f"::warning::no PDF for {folder}"); continue
-              pathlib.Path("dist", dest).parent.mkdir(parents=True, exist_ok=True)
-              shutil.copy(src[0], pathlib.Path("dist", dest))
-              print("copied", src[0], "->", dest)
-          PY
 
       - name: Build site
         run: python3 site/build-site.py --out dist

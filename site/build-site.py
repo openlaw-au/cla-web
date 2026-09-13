@@ -46,7 +46,7 @@ def build(issues_path, index_path, out_dir):
         vol, num = it.get("volume"), it.get("number")
         label = it.get("number_label") or num
         arts = it.get("articles") or articles_for(index, vol, num)
-        pdf = it.get("pdf")
+        pdf = None  # gated: issue PDFs are subscriber-only; not published on the public site
         li = "".join(
             f'<li><span class="at">{esc(a.get("title"))}</span>'
             f'<span class="au">{esc(a.get("authors") or "")}</span></li>'
@@ -62,11 +62,8 @@ def build(issues_path, index_path, out_dir):
 </article>''')
 
     archive_cta = (
-      '<a class="archcta" href="archive.html"><b>Browse the full index &amp; abstracts</b>'
-      '<span>Every article and case note, Vol&nbsp;1 (1987) &#8594; Vol&nbsp;40 (2026) &#8212; searchable, with abstracts.</span></a>'
-      if have_archive else
-      '<a class="archcta" href="https://github.com/openlaw-au/cla-clq/tree/main/index"><b>Cumulative index &amp; abstracts</b>'
-      '<span>The Vol&nbsp;1&#8211;40 index lives in cla-clq/index.</span></a>')
+      '<div class="archcta"><b>Full index, abstracts &amp; issue PDFs &#8212; for subscribers</b>'
+      '<span>Access to the <i>Commercial Law Quarterly</i> and the CLA <i>Bulletin</i> is moving to subscriber login. This public page is a catalogue &#8212; contents &amp; citations &#8212; only.</span></div>')
 
     doc = f'''<!doctype html>
 <meta charset="utf-8">
