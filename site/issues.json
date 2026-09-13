@@ -1,0 +1,24 @@
+{
+  "journal": "Commercial Law Quarterly",
+  "association": "Commercial Law Association of Australia",
+  "issues": [
+    {
+      "volume": 40,
+      "number": 3,
+      "year": 2026,
+      "date_range": "September–November 2026",
+      "cite": "(2026) 40(3) Commercial Law Quarterly",
+      "clq_folder": "2026-Vol40-No3",
+      "pdf": "issues/vol40-no3.pdf"
+    },
+    {
+      "volume": 40,
+      "number": 2,
+      "year": 2026,
+      "date_range": "June–August 2026",
+      "cite": "(2026) 40(2) Commercial Law Quarterly",
+      "clq_folder": "2026-Vol40-No2",
+      "pdf": "issues/vol40-no2.pdf"
+    }
+  ]
+}
