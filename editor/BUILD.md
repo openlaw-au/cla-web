@@ -1,22 +1,28 @@
 # Offline build of the proofing editor
 
-`index.html` loads ProseMirror from a CDN (esm.sh) at runtime, so it needs the internet
-the first time and won't run behind a strict network. `index_local.html` + `bundle.js`
-are a **self-contained, offline** build of the same editor — identical UI and behaviour,
-no CDN, no import map.
+The editor is one ES module, `app.js`. Two HTML shells load it:
 
-Serve either the same way:
+- **`index.html`** — the CDN build. An `importmap` resolves the bare ProseMirror imports to
+  esm.sh, and `<script type="module" src="app.js">` runs the module. Needs the internet the
+  first time.
+- **`index_local.html` + `bundle.js`** — a self-contained **offline** build (identical UI and
+  behaviour, no CDN, no import map). `index_local.html` is `index.html` with the
+  `<script type="importmap">` removed and `app.js` swapped for `bundle.js`.
+
+`app.js` is the single source of truth. (Earlier versions kept a copy of the module inline in
+`index.html`; it now references `app.js` directly so there is nothing to keep in sync.)
+
+Serve either shell over http — ES-module scripts do not run from `file://`:
 
 ```bash
-python3 -m http.server 8080     # then open http://localhost:8080/index_local.html
+python3 -m http.server 8080     # http://localhost:8080/ or /index_local.html
 ```
 
 ## Rebuilding `bundle.js`
 
-`bundle.js` is `index.html`'s inline module (`app.js`), bundled with its dependencies
-pinned to the same versions as the import map. esbuild deduplicates the shared
-ProseMirror packages — bundling them separately would create duplicate module instances
-and break the editor.
+Bundle `app.js` with its dependencies pinned to the same versions as the import map. esbuild
+deduplicates the shared ProseMirror packages — bundling them separately would create
+duplicate module instances and break the editor.
 
 ```bash
 npm install \
@@ -28,9 +34,17 @@ npm install \
 npx esbuild app.js --bundle --format=esm --outfile=bundle.js
 ```
 
-`app.js` is the `<script type="module">` extracted verbatim from `index.html`, and
-`index_local.html` is `index.html` with the `<script type="importmap">` removed and the
-inline module replaced by `<script type="module" src="bundle.js"></script>`.
+Regenerate `index_local.html` if the head/markup of `index.html` changed:
 
-The CDN `index.html` stays the canonical source; regenerate `bundle.js` whenever the
-editor logic or a pinned version changes.
+```bash
+python3 - <<'PY'
+import re
+h = open("index.html").read()
+h = re.sub(r'<script type="importmap">.*?</script>\s*', '', h, flags=re.S)
+h = h.replace('src="app.js"', 'src="bundle.js"')
+open("index_local.html","w").write(h)
+PY
+```
+
+Regenerate `bundle.js` whenever `app.js` or a pinned version changes; the CDN `index.html`
+stays the canonical shell.
