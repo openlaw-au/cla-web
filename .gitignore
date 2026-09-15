@@ -2,3 +2,13 @@
 # generated static site
 dist/
 site/data/
+
+# editor (Next.js app) build/tooling output
+node_modules/
+.next/
+coverage/
+playwright-report/
+test-results/
+.open-next/
+.wrangler/
+*.tsbuildinfo

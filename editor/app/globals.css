@@ -1,0 +1,49 @@
+/**
+ * app/globals.css
+ *
+ * Usage scope: global stylesheet for the CLQ Proofing Editor Next.js app, imported once from
+ * `app/layout.tsx`.
+ *
+ * Purpose: minimal CSS reset plus the CSS custom properties copied verbatim from the legacy
+ * `editor/index.html` `:root` block (see `editor/BUILD.md`), so later tasks that port the
+ * ProseMirror editor UI/toolbar/panes can reuse the same palette without re-deriving it.
+ *
+ * Protocol: keep the --navy/--steel/--mist/--ink/--line/--bg/--amber/--ok/--err custom
+ * properties in sync with `editor/index.html` until that legacy shell is deleted; do not rename
+ * them, since later tasks port CSS rules that reference these exact var names.
+ */
+
+:root {
+  --navy: #1b365d;
+  --steel: #55708e;
+  --mist: #8a97a5;
+  --ink: #232323;
+  --line: #e5e7eb;
+  --bg: #faf9f7;
+  --amber: #8a5a24;
+  --ok: #1c7d4d;
+  --err: #a3341f;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font:
+    14px/1.5 -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}

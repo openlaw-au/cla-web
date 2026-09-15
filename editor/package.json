@@ -1,0 +1,53 @@
+{
+  "name": "cla-web-editor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CLQ Proofing Editor — Next.js 16 + React 19 + TypeScript App Router rewrite of the ProseMirror-based CLQ proofing tool.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "next": "16.3.5",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "prosemirror-model": "1.21.0",
+    "prosemirror-transform": "1.9.0",
+    "prosemirror-state": "1.4.3",
+    "prosemirror-view": "1.33.4",
+    "prosemirror-keymap": "1.2.2",
+    "prosemirror-commands": "1.6.0",
+    "prosemirror-history": "1.4.1",
+    "prosemirror-schema-basic": "1.2.3",
+    "prosemirror-schema-list": "1.4.1",
+    "prosemirror-markdown": "1.13.1",
+    "markdown-it": "14.1.0",
+    "orderedmap": "2.1.1",
+    "w3c-keyname": "2.2.8"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/node": "^22",
+    "@types/markdown-it": "^14",
+    "vitest": "^3",
+    "@vitest/coverage-v8": "^3",
+    "@testing-library/react": "^16",
+    "@testing-library/jest-dom": "^6",
+    "@testing-library/user-event": "^14",
+    "jsdom": "^25",
+    "@playwright/test": "^1",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.5",
+    "prettier": "^3",
+    "@opennextjs/cloudflare": "^1"
+  }
+}

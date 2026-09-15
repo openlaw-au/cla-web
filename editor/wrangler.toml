@@ -1,0 +1,38 @@
+# wrangler.toml
+#
+# Usage scope: Cloudflare Workers deploy config for the CLQ Proofing Editor
+# (`@opennextjs/cloudflare` output), per the `cloudflare-deploy-openlaw` skill.
+#
+# Purpose: documented placeholder — worker name, static-assets binding, and per-env worker
+# names for dev/prod. `main` points at the file OpenNext emits (`.open-next/worker.js`, not
+# `entry.mjs`). Actual CI deploy wiring (GitHub Actions, secrets, `wrangler deploy --env`) is
+# completed in a later task; this file exists now so the config is documented ahead of that
+# work, without requiring a working deploy in this scaffolding task.
+#
+# Protocol: keep the two branches (dev/prod) as separate Workers, one deploy target each — do
+# not collapse them into a single shared Worker.
+
+name = "cla-web-editor"
+main = ".open-next/worker.js"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[observability]
+enabled = true
+[observability.logs]
+enabled = true
+invocation_logs = true
+
+[env.dev]
+name = "cla-web-editor-dev"
+[env.dev.observability]
+enabled = true
+
+[env.prod]
+name = "cla-web-editor-prod"
+[env.prod.observability]
+enabled = true
