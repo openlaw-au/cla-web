@@ -13,9 +13,11 @@
  *
  * Protocol: covers every branch of `markdown.ts` to satisfy the repo's 100% line+branch coverage
  * gate (see `CLAUDE.md`):
- *   - clq_footnote: match / not-`^[` / unbalanced-brackets / silent-mode match+no-match
+ *   - clq_footnote: match / not-`^[` / unbalanced-brackets / nested-inside-emphasis (no silent
+ *     probe) / silent-mode match via link-label lookahead (`if (!silent)`'s false branch)
  *   - clq_smallcaps: match / not-`[` / unbalanced-brackets / missing-`]{.smallcaps}`-tail /
- *     silent-mode match+no-match
+ *     nested-inside-emphasis (no silent probe) / silent-mode match via image-alt-label
+ *     lookahead (`if (!silent)`'s false branch)
  *   - parser token→node/mark getAttrs: ordered_list start (present + absent), heading level,
  *     fence params, image src/title/alt (present + absent), link href/title (present + absent),
  *     footnote text (PARA split)
@@ -65,17 +67,29 @@ describe("clq_footnote inline rule", () => {
     expect(out).not.toMatch(/\^\[unbalanced and no close\]/);
   });
 
-  it("is exercised in markdown-it's silent validation mode without throwing (e.g. inside emphasis scanning)", () => {
-    // markdown-it probes inline rules in silent mode while scanning for delimiter pairs (e.g.
-    // when deciding whether '*' can close emphasis). Surrounding a footnote with emphasis
-    // markers forces markdown-it to tokenize through the footnote's span while resolving the
-    // emphasis delimiters, exercising the rule's silent=true branch (token push skipped) as well
-    // as its normal non-silent push on the real parse pass.
+  it("round-trips inside emphasis without throwing (emphasis scanning does not probe this rule in silent mode)", () => {
+    // Surrounding a footnote with emphasis markers does NOT route through this rule's
+    // silent=true branch: markdown-it's emphasis delimiter scan only re-probes rules that
+    // registered emphasis-relevant delimiters, which clq_footnote does not. This case only
+    // guards that the rule still behaves correctly when nested inside another inline mark.
     const doc = parseMarkdown("*before ^[note] after*");
     const out = serializeDoc(doc);
     expect(out).toContain("^[note]");
     expect(out).toContain("before");
     expect(out).toContain("after");
+  });
+
+  it("is exercised in markdown-it's silent validation mode (link-label lookahead) without pushing a token", () => {
+    // markdown-it's link-label parser probes the inline ruler in silent mode while scanning a
+    // `[...]` label's contents for balance/validity, before deciding whether the label is
+    // actually a link. A label that itself starts with `^[` routes through clq_footnote with
+    // silent=true first (no token pushed, per the `if (!silent)` guard) and, since the
+    // surrounding `[...](http://...)` wins as a real link, is never re-probed non-silently at
+    // this position — the raw `^[note]` text becomes the link's literal text content instead of
+    // a footnote node, and round-trips unchanged as part of that link's label.
+    const doc = parseMarkdown("[^[note]](http://example.com)");
+    const out = serializeDoc(doc);
+    expect(out).toBe("[^[note]](http://example.com)");
   });
 });
 
@@ -116,12 +130,23 @@ describe("clq_smallcaps inline rule", () => {
     expect(out).not.toContain("smallcaps");
   });
 
-  it("is exercised in markdown-it's silent validation mode without throwing (e.g. inside emphasis scanning)", () => {
+  it("round-trips inside emphasis without throwing (emphasis scanning does not probe this rule in silent mode)", () => {
     const doc = parseMarkdown("*before [ASIC]{.smallcaps} after*");
     const out = serializeDoc(doc);
     expect(out).toContain("[ASIC]{.smallcaps}");
     expect(out).toContain("before");
     expect(out).toContain("after");
+  });
+
+  it("is exercised in markdown-it's silent validation mode (image-alt-label lookahead) without pushing a token", () => {
+    // Mirrors the clq_footnote case above: an image's `![alt](dest)` alt-text label is itself a
+    // `[...]` span, so markdown-it's label parser probes clq_smallcaps in silent mode while
+    // scanning it for balance. Since the outer image wins, the smallcaps rule is never re-probed
+    // non-silently at this position — `prosemirror-markdown`'s default image alt handling then
+    // reduces the (plain-text-only) alt attr to the label's un-marked text content.
+    const doc = parseMarkdown("![alt [x]{.smallcaps}](http://example.com)");
+    const out = serializeDoc(doc);
+    expect(out).toBe("![alt ](http://example.com)");
   });
 
   it("nested brackets within a smallcaps span round-trip (inner literal brackets escaped by the default text escaper)", () => {
