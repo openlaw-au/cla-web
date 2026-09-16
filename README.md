@@ -39,7 +39,7 @@
    page listing published issues (PDF as the canonical download) and a web reading view,
    generated from `site/issues.json` by `site/build-site.py`.
 2. **Proof editing** — give editors a rich-text surface to correct copy without touching LaTeX.
-   The **CLQ Proofing Editor** (`editor/`) is being rewritten as a **Next.js 16 + React 19 +
+   The **CLQ Proofing Editor** (`editor/`) is a **Next.js 16 + React 19 +
    TypeScript** app that round-trips Markdown (the format the production pipeline consumes)
    against `openlaw-au/cla-clq` via the GitHub contents API. The press build always happens in
    `cla-tamara-print`'s CI — this repo is never the source of truth for the final PDF.
@@ -236,8 +236,9 @@ request, never a direct push.
 
 ## Status
 
-The editor is being rewritten from a static ProseMirror module into the Next.js/React/TypeScript
-app described above. The public CLQ site (`site/`) is built and deploys via GitHub Pages. The
+The editor has been rewritten from a static ProseMirror module into the Next.js/React/TypeScript
+app described above, with 100% unit-test coverage and Playwright end-to-end tests. The public
+CLQ site (`site/`) is built and deploys via GitHub Pages. The
 repository is private until the site is ready, then made public
 (`gh repo edit openlaw-au/cla-web --visibility public`).
 
