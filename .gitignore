@@ -12,3 +12,10 @@ test-results/
 .open-next/
 .wrangler/
 *.tsbuildinfo
+
+# python (site/ tooling)
+__pycache__/
+*.pyc
+.coverage
+htmlcov/
+.venv*/

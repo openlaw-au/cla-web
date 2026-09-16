@@ -1,0 +1,62 @@
+# Python tooling config for cla-web's site/ (the public CLQ landing-page builder).
+#
+# Scoped deliberately to site/ — NOT the repo root — because the editor/ app is a
+# separate Next.js/TypeScript project with its own package.json/vitest config; keeping
+# this file inside site/ means neither toolchain has to know about the other.
+#
+# Run from the site/ directory:
+#   cd site && pytest --cov --cov-branch --cov-fail-under=100
+# (matches repo CLAUDE.md's `pytest --cov --cov-branch --cov-fail-under=100` under
+# "Public site (site/)", and the existing .claude/skills/clq-web/site-build.md docs).
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["."]
+omit = [
+  "tests/*",
+]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+exclude_lines = [
+  "pragma: no cover",
+  "if __name__ == .__main__.:",
+]
+
+[tool.ruff]
+# line-length is generous because build-site.py's f-string HTML/CSS template
+# (long inline <style> rules) is intentionally kept as single lines matching the
+# rendered output structure — wrapping them would not change behaviour but would
+# make the template harder to visually diff against dist/index.html.
+line-length = 260
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = [
+  "E401",  # build-site.py's top import line (`import json, html, pathlib, ...`)
+           # predates this task's scope, which is refactor-only for docstrings/main();
+           # splitting it risks an unreviewed diff against the byte-identical-output
+           # requirement, so it's kept and the rule silenced instead.
+  "I001",  # same import line also trips import-sort/format; same rationale as E401.
+  "E701",  # single-line `if not index: return []` in articles_for() — pre-existing,
+           # same rationale as E401 (out of scope for a behaviour-preserving change).
+  "E702",  # single-line `out = ...; out.mkdir(...)` in build() — same rationale.
+]
+
+[tool.black]
+line-length = 260
+target-version = ["py311"]
+# build-site.py's pre-existing terse style (single-line `if`/`;`-joined statements,
+# no blank lines between defs) is out of scope for this task (docstrings + main()
+# extraction only, behaviour/output must stay byte-identical) — same rationale as
+# the ruff E401/E701/E702/I001 ignores above. New code (tests/) is left to black.
+extend-exclude = "build-site\\.py"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true

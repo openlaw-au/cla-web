@@ -73,9 +73,19 @@ python3 -m http.server -d dist 8080              # preview at localhost:8080
 
 ```bash
 cd site
+python3 -m pip install -r requirements-dev.txt   # pytest, pytest-cov, ruff, black, mypy
 pytest --cov --cov-branch --cov-fail-under=100   # 100% coverage gate, per repo CLAUDE.md
 ```
 
 CLI flags: `--issues` (default `site/issues.json`), `--index` (default
-`site/data/all_index.json`), `--out` (default `dist/`) — see `argparse` block at the
-bottom of `build-site.py`.
+`site/data/all_index.json`), `--out` (default `dist/`) — see `main(argv=None)`,
+which parses `argv` (or `sys.argv[1:]` when `argv` is `None`) with `argparse` and
+calls `build()`. `if __name__ == "__main__": main()` at the bottom is the only code
+outside a function — this makes the CLI path itself unit-testable (tests call
+`main([...])` with explicit args, or `main()` with `sys.argv` monkeypatched).
+
+Test config lives in `site/pyproject.toml` (deliberately scoped to `site/`, separate
+from the editor's Next.js/vitest tooling): `[tool.pytest.ini_options]` points at
+`site/tests/`, `[tool.coverage.*]` enforces branch coverage with `fail_under = 100`.
+Tests load `build-site.py` via `importlib.util.spec_from_file_location` (see
+`site/tests/conftest.py`) since the hyphenated filename blocks a normal import.
