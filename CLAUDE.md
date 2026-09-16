@@ -51,6 +51,23 @@ never a blanket ignore.
 - **Editor** (`editor/`) — OpenNext → Cloudflare Workers.
 - **Public site** (`site/`) — GitHub Pages, via `.github/workflows/pages.yml`.
 
+## Secrets (MUST)
+
+> Any **new** environment secret introduced for a CLA repo — a GitHub Actions secret, a
+> Cloudflare Workers/Pages secret, or any runtime credential — MUST also be mirrored into AWS
+> Secrets Manager under the CLA project stack in `openlaw-au/config-repo`:
+> `infra/projects/cla/publishing/prod/secrets.tf`. Add the secret container + its
+> `manifests.runtime` entry, apply via the config-repo Terraform flow, then populate the value
+> out-of-band:
+>
+> ```bash
+> aws secretsmanager put-secret-value --region ap-southeast-2 \
+>   --secret-id cla/publishing/prod/<key> --secret-string '…'
+> ```
+>
+> Never commit secret values to git — secret **containers** live in Terraform, secret **values**
+> never do. Non-sensitive config goes in the same stack's `values` block (SSM String params).
+
 ## The force rule (MUST)
 
 > Every function, lib/util and file carries a header comment (usage scope, purpose, protocol).
