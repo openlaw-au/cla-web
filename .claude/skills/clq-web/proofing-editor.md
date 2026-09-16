@@ -1,6 +1,6 @@
 ---
 name: proofing-editor
-description: Use when working on the CLQ Proofing Editor's ProseMirror schema, toolbar/commands/keymap, footnote UI, or GitHub load/save persistence — in the legacy editor/app.js or the Next.js 16 + React 19 + TypeScript rewrite (components/ProofingEditor.tsx, lib/editor/*).
+description: Use when working on the CLQ Proofing Editor's ProseMirror schema, toolbar/commands/keymap, footnote UI, or GitHub load/save persistence — the Next.js 16 + React 19 + TypeScript app (components/ProofingEditor.tsx, lib/editor/*).
 ---
 
 # Proofing Editor
@@ -8,12 +8,11 @@ description: Use when working on the CLQ Proofing Editor's ProseMirror schema, t
 ## Overview
 
 A browser rich-text (ProseMirror) editor so CLQ editors proof articles without touching
-LaTeX. Currently one ES module, `editor/app.js` — the source of truth for behaviour.
-Being rewritten as a **Next.js 16 + React 19 + TypeScript** app (App Router):
+LaTeX. A **Next.js 16 + React 19 + TypeScript** app (App Router):
 `components/ProofingEditor.tsx` hosts the `'use client'` ProseMirror `EditorView`; typed
-conversion/parsing logic moves into `lib/editor/*` modules (schema, markdown-it rules,
-serializer, GitHub client). The behaviour below is the contract the rewrite must preserve
-— it is not new design.
+conversion/parsing logic lives in `lib/editor/*` modules (schema, markdown-it rules,
+serializer, GitHub client). The behaviour below is the load-bearing contract this app
+implements — preserve it across any change.
 
 **REQUIRED SUB-SKILL for any change touching parsing/serializing:** load
 [proofing-editor/markdown-roundtrip.md](proofing-editor/markdown-roundtrip.md) first. It
@@ -56,10 +55,10 @@ Footnotes are edited through a **node view + side panel**, not inline text:
 - Toolbar "Footnote" button inserts a new footnote atom with `text: "New footnote."` at
   the current selection.
 
-In the rewrite, `FootnoteView` becomes a ProseMirror `NodeView` class still constructed
-imperatively inside the `'use client'` component (ProseMirror's view layer is not React
-JSX) — the side panel textarea can become a React-controlled `<textarea>` as long as its
-`onChange` still dispatches `setNodeMarkup` with `addToHistory: true`.
+`FootnoteView` is a ProseMirror `NodeView` class constructed imperatively inside the
+`'use client'` component (ProseMirror's view layer is not React JSX) — the side panel
+textarea is a React-controlled `<textarea>` whose `onChange` dispatches `setNodeMarkup`
+with `addToHistory: true`.
 
 ## Toolbar, commands, keymap
 
@@ -113,5 +112,5 @@ Load/save an article straight to `cla-clq` via the GitHub **contents API**
 - Errors surface GitHub's JSON `message` field when present, else `response.statusText`,
   prefixed `"GitHub {status}: "`.
 
-In the rewrite this becomes a typed `lib/editor/github.ts` client with the same three
-calls (parse repo string, load, save) and the same in-memory-only token rule.
+Implemented as a typed `lib/editor/github.ts` client with the same three calls (parse
+repo string, load, save) and the same in-memory-only token rule.

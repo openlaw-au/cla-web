@@ -1,4 +1,4 @@
-# cla-web — architecture (proposed)
+# cla-web — architecture
 
 ## Two jobs
 
@@ -27,12 +27,27 @@ author .docx ──pandoc──▶ Markdown/pandoc-JSON  ◀──edit──  Pr
 ## Alternatives considered
 
 - **Overleaf Visual Editor** — near-WYSIWYG on the actual LaTeX, GitHub-synced, zero
-  round-trip loss. Lowest effort; good interim option before the bespoke editor exists.
-- **Typst** — faster compile, friendlier source, but a second typesetting engine to maintain.
+  round-trip loss. Still a fine zero-build interim proofing surface where the bespoke
+  editor is overkill (see `docs/overleaf.md`).
+- **Typst** — faster compile, friendlier source, but a second typesetting engine to maintain
+  — not pursued.
 
-## Stack (to decide)
+## Stack
 
-- Front end: ProseMirror + a thin app (SvelteKit / Next).
-- Build service: a small worker that runs the `cla-tamara-print` pipeline on demand
-  (or GitHub Actions via `workflow_dispatch`).
-- Hosting: TBD (static issue site + a build endpoint).
+- **Front end:** `editor/` is a **Next.js 16 + React 19 + TypeScript** app (App Router).
+  `app/layout.tsx` + `app/page.tsx` are the server-rendered shell; the ProseMirror
+  `EditorView` itself lives in the `'use client'` `components/ProofingEditor.tsx`
+  component (ProseMirror's view layer is imperative DOM, not JSX, so it is constructed
+  inside a `useEffect` and torn down on unmount). Typed conversion/parsing logic is
+  factored into `lib/editor/*` modules — `schema.ts` (ProseMirror schema, incl. the
+  `smallcaps` mark and `footnote` node), `markdown.ts` (parser + serializer),
+  `preprocess.ts` (reference-footnote → inline expansion before parsing),
+  `commands.ts` (toolbar commands/keymap), `footnote-view.ts` (the footnote `NodeView` +
+  numbering), and `github.ts` (the GitHub contents-API client for load/save). Every
+  module is unit-tested (Vitest) at 100% coverage; `npm run test:e2e` (Playwright) covers
+  the end-to-end load → edit → save round-trip.
+- **Build service:** none needed — the press build always happens in `cla-tamara-print`'s
+  own CI (GitHub Actions), triggered by the commits the editor makes to `cla-clq`.
+- **Hosting:** the editor deploys via **OpenNext → Cloudflare Workers**
+  (`open-next.config.ts`, `wrangler.toml`); the public site (`site/`) deploys to GitHub
+  Pages via `.github/workflows/pages.yml`.

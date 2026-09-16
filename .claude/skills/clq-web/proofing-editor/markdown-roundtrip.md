@@ -10,8 +10,9 @@ description: Use when touching the CLQ Proofing Editor's Markdown parsing, seria
 This is the **load-bearing contract** of the proofing editor: an article loaded from
 `cla-clq`, edited, and saved back must serialize to Markdown the `cla-tamara-print`
 pipeline can still turn into correct LaTeX. Get any rule below wrong and articles corrupt
-silently — there's no schema validation catching it. Source of truth: `editor/app.js`
-lines ~30–152 (markdown-it rules, parser config, serializer, `preprocess()`).
+silently — there's no schema validation catching it. Source of truth: `lib/editor/markdown.ts`
+(markdown-it rules, parser config, serializer) and `lib/editor/preprocess.ts`
+(`preprocess()`).
 
 ## The PARA separator invariant
 
@@ -129,11 +130,12 @@ footnotes that are genuinely multi-paragraph stay in (equivalent, renumbered) re
 form. This is intentional (inline is simpler when one paragraph suffices) but is a
 one-way normalization to be aware of when diffing saves.
 
-## Testing implications for the rewrite
+## Testing
 
-Any `lib/editor/*` port of this logic needs unit tests (Vitest) covering at minimum:
-nested brackets inside `^[...]`, `[...]{.smallcaps}` immediately followed by more text,
-a `[^id]:` block with 3+ paragraphs (blank-line + indent continuation), a `[^id]` with no
-matching definition (left untouched), and the single-paragraph-reference→inline
-demotion. Playwright e2e should load a real multi-footnote `cla-clq` article fixture,
-round-trip it through load→edit-nothing→save, and diff against the original.
+Every `lib/editor/*` module covering this logic has unit tests (Vitest) covering at
+minimum: nested brackets inside `^[...]`, `[...]{.smallcaps}` immediately followed by more
+text, a `[^id]:` block with 3+ paragraphs (blank-line + indent continuation), a `[^id]`
+with no matching definition (left untouched), and the single-paragraph-reference→inline
+demotion. Playwright e2e loads a real multi-footnote `cla-clq` article fixture,
+round-trips it through load→edit-nothing→save, and diffs against the original. Any change
+to this contract must keep both suites (and the 100% coverage gate) green.

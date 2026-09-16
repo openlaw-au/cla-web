@@ -5,14 +5,13 @@
  * `app/layout.tsx`.
  *
  * Purpose: minimal CSS reset plus the CSS custom properties and component rules ported verbatim
- * (selectors/declarations unchanged, just reformatted) from the legacy `editor/index.html`
- * `<style>` block (see `editor/BUILD.md`) — the `--navy/--steel/--mist/--ink/--line/--bg/--amber/
+ * (selectors/declarations unchanged, just reformatted) from the now-removed legacy
+ * `editor/index.html` `<style>` block — the `--navy/--steel/--mist/--ink/--line/--bg/--amber/
  * --ok/--err` palette plus the toolbar/editor/aside/gh/io/status rules the `ProofingEditor`
  * component (`components/ProofingEditor.tsx`) renders against.
  *
- * Protocol: keep every custom property name and every class selector below in sync with
- * `editor/index.html` until that legacy shell is deleted; do not rename them, since
- * `ProofingEditor.tsx` references these exact class names.
+ * Protocol: keep every custom property name and every class selector below in sync with what
+ * `ProofingEditor.tsx` references — do not rename them without updating that component too.
  */
 
 :root {

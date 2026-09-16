@@ -1,6 +1,6 @@
 ---
 name: clq-web
-description: Use when working anywhere in cla-web — the CLA Australia websites repo — including the CLQ Proofing Editor (ProseMirror/Next.js rewrite), the public CLQ landing site, or GitHub Pages / Cloudflare Workers deploy for either.
+description: Use when working anywhere in cla-web — the CLA Australia websites repo — including the CLQ Proofing Editor (ProseMirror on Next.js), the public CLQ landing site, or GitHub Pages / Cloudflare Workers deploy for either.
 ---
 
 # clq-web
@@ -14,9 +14,9 @@ description: Use when working anywhere in cla-web — the CLA Australia websites
    deployed to GitHub Pages.
 2. **Proof editing** — the **CLQ Proofing Editor**, a rich-text (ProseMirror) surface so
    editors correct copy without touching LaTeX. It round-trips Markdown against
-   `openlaw-au/cla-clq` via the GitHub contents API. Currently a static ES-module app
-   (`editor/app.js`); being rewritten into **Next.js 16 + React 19 + TypeScript**
-   (`components/ProofingEditor.tsx` + `lib/editor/*`), same behaviour.
+   `openlaw-au/cla-clq` via the GitHub contents API. A **Next.js 16 + React 19 +
+   TypeScript** app (App Router): `components/ProofingEditor.tsx` hosts the `'use client'`
+   ProseMirror `EditorView`; typed conversion/parsing logic lives in `lib/editor/*`.
 
 Neither job is the source of truth for the final PDF — that's always the LaTeX build in
 `cla-tamara-print`'s CI. This repo only proofs and publishes.

@@ -26,8 +26,6 @@ const eslintConfig = [
       "coverage/**",
       "playwright-report/**",
       "test-results/**",
-      "bundle.js",
-      "app.js",
     ],
   },
 ];
