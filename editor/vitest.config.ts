@@ -27,6 +27,13 @@
  * raw, untransformed `<Foo />` JSX to Node and fails with `ReferenceError: React is not
  * defined`. Pinned to `^4.7.0` (not the latest major, which requires Vite 8) to match the Vite 7
  * this repo gets transitively via `vitest@3`.
+ *
+ * `test.exclude` adds Vitest's own default excludes back explicitly plus `e2e/**`: Vitest's
+ * default test-file glob (`**\/*.{test,spec}.*`) otherwise picks up `e2e/roundtrip.spec.ts`
+ * (a Playwright spec, run separately via `npx playwright test`) and fails it with "Playwright
+ * Test did not expect test.describe() to be called here" — `e2e/**` here is test *discovery*
+ * scope, independent of `coverage.exclude`'s `e2e/**` above (which only scopes the coverage
+ * report).
  */
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
@@ -37,6 +44,7 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
+    exclude: ["**/node_modules/**", "**/dist/**", "e2e/**"],
     coverage: {
       provider: "v8",
       all: true,
