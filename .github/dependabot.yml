@@ -1,0 +1,27 @@
+# Dependabot configuration for cla-web.
+#
+# Scope: keeps the editor's npm dependencies (editor/), the public-site Python
+#   dev tooling (site/), and the GitHub Actions workflows up to date, and surfaces
+#   security advisories for each. Grouped, weekly PRs against `dev` (the working
+#   branch); integration to the protected `prod` still flows through a reviewed PR.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/editor"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
+    open-pull-requests-limit: 10
+    groups:
+      editor-deps:
+        patterns: ["*"]
+  - package-ecosystem: "pip"
+    directory: "/site"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
