@@ -1,7 +1,7 @@
 # Dev/test dependencies for site/ (the public CLQ landing-page builder).
 # Install: python3 -m pip install -r site/requirements-dev.txt
 # Run:     cd site && pytest --cov --cov-branch --cov-fail-under=100
-pytest>=7.4
+pytest>=9.1.1
 pytest-cov>=7.1
 ruff>=0.6
 # Pinned below Black's 24.1.0 "2024 stable style" change: 24.x+ wants to reformat
