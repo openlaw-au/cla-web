@@ -25,10 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout cla-web
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Checkout cla-clq (index + issue PDFs)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: openlaw-au/cla-clq
           token: ${{ secrets.CLQ_REPO_TOKEN }}
