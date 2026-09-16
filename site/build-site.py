@@ -14,24 +14,60 @@ Writes:
 The built issue PDFs and dist/archive.html are placed into dist/ by the Pages workflow
 (they live in cla-clq); this script only generates index.html and never invents content.
 """
-import json, html, pathlib, argparse
+import json, html, pathlib, argparse, sys
+from typing import Any, Optional, Sequence, Union
 
 HERE = pathlib.Path(__file__).parent
 
-def esc(s): return html.escape(str(s or ""), quote=True)
+def esc(s: Any) -> str:
+    """Usage: HTML-escape any manifest/index value before interpolating it into the
+    page template. Scope: called throughout build() for every user-authored string
+    (titles, authors, citations, journal/association names). Protocol: coerces to
+    str first (so ints/None are safe), treats None/falsy as "" (missing data is
+    simply blank, never "None"), and always quote-escapes."""
+    return html.escape(str(s or ""), quote=True)
 
-def load(p):
+def load(p: Union[str, pathlib.Path]) -> Optional[Any]:
+    """Usage: load an optional/required JSON input file. Scope: used for both
+    issues.json (manifest) and site/data/all_index.json (cumulative index).
+    Protocol: returns the parsed JSON object if the path exists, else None —
+    callers treat None as "this optional input was not supplied" rather than
+    raising, so a missing all_index.json degrades gracefully instead of erroring."""
     p = pathlib.Path(p)
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
 
-def articles_for(index, vol, num):
+def articles_for(index: Optional[Sequence[dict[str, Any]]], vol: Any, num: Any) -> list[dict[str, Any]]:
+    """Usage: fallback lookup of an issue's article list from the cumulative index,
+    used by build() when an issue entry in issues.json has no inline "articles".
+    Scope: only called when an index was loaded (build() also short-circuits via
+    `it.get("articles") or articles_for(...)`). Protocol: returns [] if index is
+    falsy; matches an index entry by exact volume and by number normalized via
+    `int(str(...).split("-")[0])` (so "3" and "3-special"/"3-4" style labels both
+    match on their leading integer); returns only articles whose category is
+    "Article" or "Case Note" (editorial/other categories are excluded from the
+    public page); returns [] if no matching entry is found."""
     if not index: return []
     for e in index:
         if e.get("volume") == vol and int(str(e.get("number")).split("-")[0]) == int(str(num).split("-")[0]):
             return [a for a in e.get("articles", []) if a.get("category") in ("Article", "Case Note")]
     return []
 
-def build(issues_path, index_path, out_dir):
+def build(
+    issues_path: Union[str, pathlib.Path],
+    index_path: Union[str, pathlib.Path],
+    out_dir: Union[str, pathlib.Path],
+) -> None:
+    """Usage: the site build entry point — reads the issues manifest (+ optional
+    cumulative index) and writes dist/index.html. Scope: called by main() (the CLI)
+    and directly by tests. Protocol: missing issues_path yields an empty issue list
+    (never raises); issues are sorted by (year, volume, number) descending, with
+    number normalized the same way as articles_for(); each issue's article list
+    comes from its own "articles" field if present, else falls back to
+    articles_for(index, vol, num); the per-issue PDF link is intentionally never
+    rendered (pdf is hardcoded to None — issue PDFs are subscriber-gated, not
+    public); an empty issue list renders a "No issues published yet." placeholder;
+    the archive CTA banner is shown whenever an index was loaded (have_archive);
+    creates out_dir if needed and writes exactly one file, out_dir/index.html."""
     manifest = load(issues_path) or {"issues": []}
     index = load(index_path)
     issues = sorted(manifest.get("issues", []),
@@ -115,10 +151,20 @@ def build(issues_path, index_path, out_dir):
     (out / "index.html").write_text(doc, encoding="utf-8")
     print(f"wrote {out/'index.html'} — {len(issues)} issue(s); archive linked: {have_archive}")
 
-if __name__ == "__main__":
+def main(argv: Optional[Sequence[str]] = None) -> None:
+    """Usage: CLI entry point for build-site.py. Scope: invoked by
+    `if __name__ == "__main__"` (argv=None, so argparse parses sys.argv[1:]) and by
+    the Pages workflow (`python3 site/build-site.py --out dist`); also directly
+    callable from tests with an explicit argv list. Protocol: defines the three
+    flags --issues/--index/--out with the same HERE-relative defaults as before
+    (site/issues.json, site/data/all_index.json, dist/ next to site/), parses
+    `argv if argv is not None else sys.argv[1:]`, then delegates to build()."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--issues", default=str(HERE / "issues.json"))
     ap.add_argument("--index", default=str(HERE / "data" / "all_index.json"))
     ap.add_argument("--out", default=str(HERE.parent / "dist"))
-    a = ap.parse_args()
+    a = ap.parse_args(argv if argv is not None else sys.argv[1:])
     build(a.issues, a.index, a.out)
+
+if __name__ == "__main__":
+    main()

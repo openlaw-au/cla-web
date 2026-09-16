@@ -1,0 +1,10 @@
+# Mirrors eslint.config.mjs's ignores plus other generated/vendored output that carries no
+# hand-authored formatting to enforce.
+.next/
+.open-next/
+.wrangler/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+package-lock.json

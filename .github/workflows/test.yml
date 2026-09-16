@@ -1,0 +1,92 @@
+name: test
+# CI gate for cla-web's two toolchains.
+#
+# - `web`  — the CLQ Proofing Editor (editor/, Next 16 + React 19 + TS): npm ci, eslint,
+#            tsc --noEmit, Vitest unit tests with the 100% coverage gate from
+#            editor/vitest.config.ts, then Playwright e2e (editor/e2e/) against a `next dev`
+#            server Playwright starts itself (playwright.config.ts's `webServer` +
+#            `reuseExistingServer: !CI`).
+# - `site` — the public CLQ site builder (site/, Python): pytest with the 100% branch-coverage
+#            gate from site/pyproject.toml, plus ruff/black/mypy — all blocking here because all
+#            three pass cleanly against site/pyproject.toml's documented, scoped exclusions
+#            (build-site.py's terse-style ruff/black ignores; see that file's [tool.ruff]/
+#            [tool.black] sections) — verified locally before wiring this workflow. If a future
+#            change makes mypy noisy in a way that isn't a real bug, flip its step to
+#            `continue-on-error: true` with a comment explaining why, rather than deleting it.
+#
+# Deliberately separate from .github/workflows/pages.yml (which builds+deploys the public site
+# to GitHub Pages on push to `main`) — this workflow never touches Pages and must not be merged
+# into it.
+on:
+  push:
+    branches: [dev, prod]
+  pull_request:
+    branches: [dev, prod]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: editor
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: editor/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests (Vitest, 100% coverage gate)
+        run: npx vitest run --coverage
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests (Playwright)
+        run: npx playwright test
+
+  site:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install -r site/requirements-dev.txt
+
+      - name: Ruff (lint)
+        run: cd site && ruff check .
+
+      - name: Black (format check)
+        run: cd site && black --check .
+
+      - name: Mypy (type check)
+        run: cd site && mypy .
+
+      - name: Pytest (100% branch-coverage gate)
+        run: cd site && pytest --cov --cov-branch --cov-fail-under=100

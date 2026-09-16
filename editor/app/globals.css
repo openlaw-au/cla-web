@@ -1,0 +1,302 @@
+/**
+ * app/globals.css
+ *
+ * Usage scope: global stylesheet for the CLQ Proofing Editor Next.js app, imported once from
+ * `app/layout.tsx`.
+ *
+ * Purpose: minimal CSS reset plus the CSS custom properties and component rules ported verbatim
+ * (selectors/declarations unchanged, just reformatted) from the now-removed legacy
+ * `editor/index.html` `<style>` block — the `--navy/--steel/--mist/--ink/--line/--bg/--amber/
+ * --ok/--err` palette plus the toolbar/editor/aside/gh/io/status rules the `ProofingEditor`
+ * component (`components/ProofingEditor.tsx`) renders against.
+ *
+ * Protocol: keep every custom property name and every class selector below in sync with what
+ * `ProofingEditor.tsx` references — do not rename them without updating that component too.
+ */
+
+:root {
+  --navy: #1b365d;
+  --steel: #55708e;
+  --mist: #8a97a5;
+  --ink: #232323;
+  --line: #e5e7eb;
+  --bg: #faf9f7;
+  --amber: #8a5a24;
+  --ok: #1c7d4d;
+  --err: #a3341f;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font:
+    14px/1.5 -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+header {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+header h1 {
+  font-size: 14px;
+  margin: 0;
+  color: var(--navy);
+  letter-spacing: 0.02em;
+}
+
+header .muted {
+  color: var(--mist);
+  font-size: 12px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.toolbar button {
+  font: 13px/1 inherit;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.toolbar button:hover {
+  border-color: var(--steel);
+  color: var(--navy);
+}
+
+.toolbar .sep {
+  width: 1px;
+  background: var(--line);
+  margin: 2px 4px;
+}
+
+main.editor-main {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 0;
+  min-height: calc(100vh - 96px);
+}
+
+@media (max-width: 900px) {
+  main.editor-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+#editorWrap {
+  padding: 24px;
+  overflow: auto;
+}
+
+.ProseMirror {
+  max-width: 44rem;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 32px 36px;
+  min-height: 70vh;
+  outline: none;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.ProseMirror:focus {
+  border-color: var(--steel);
+}
+
+.ProseMirror h1 {
+  font-size: 1.5em;
+  color: var(--navy);
+}
+
+.ProseMirror h2 {
+  font-size: 1.25em;
+  color: var(--navy);
+}
+
+.ProseMirror h3 {
+  font-size: 1.08em;
+  color: var(--navy);
+}
+
+.ProseMirror blockquote {
+  border-left: 3px solid var(--mist);
+  margin: 1em 0;
+  padding-left: 1em;
+  color: #444;
+}
+
+.ProseMirror em {
+  font-style: italic;
+}
+
+.ProseMirror .clq-sc {
+  font-variant: small-caps;
+  letter-spacing: 0.02em;
+}
+
+sup.clq-fn {
+  color: #fff;
+  background: var(--navy);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 0.62em;
+  cursor: pointer;
+  font-family: -apple-system, sans-serif;
+  vertical-align: super;
+}
+
+sup.clq-fn.multi {
+  background: var(--amber);
+}
+
+sup.clq-fn.sel {
+  outline: 2px solid var(--steel);
+}
+
+aside {
+  border-left: 1px solid var(--line);
+  background: #fff;
+  padding: 16px;
+  overflow: auto;
+}
+
+aside h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--steel);
+  margin: 0 0 8px;
+}
+
+aside textarea {
+  width: 100%;
+  min-height: 120px;
+  font:
+    13px/1.5 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  resize: vertical;
+}
+
+aside .hint {
+  color: var(--mist);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.io {
+  margin-top: 18px;
+}
+
+.io textarea {
+  min-height: 150px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.row button {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.row button.primary {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+
+.gh {
+  margin-top: 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.gh label {
+  display: block;
+  font-size: 11px;
+  color: var(--steel);
+  margin: 8px 0 2px;
+}
+
+.gh input {
+  width: 100%;
+  font:
+    13px/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.gh .ghmsg {
+  font-size: 12px;
+  margin-top: 8px;
+  min-height: 1em;
+}
+
+.gh .ghmsg.ok {
+  color: var(--ok);
+}
+
+.gh .ghmsg.err {
+  color: var(--err);
+}
+
+.status {
+  font-size: 12px;
+  color: var(--mist);
+  padding: 4px 16px;
+}
