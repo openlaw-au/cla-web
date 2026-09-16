@@ -8,4 +8,4 @@ ruff>=0.6
 # tests/conftest.py and tests/test_build_site.py (pre-existing files, out of scope
 # to reformat here). Bumping past 24.0 requires a separate, reviewed reformat pass.
 black>=23.11,<24
-mypy>=1.10
+mypy>=2.3.1
