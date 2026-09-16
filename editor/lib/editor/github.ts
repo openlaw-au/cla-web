@@ -89,7 +89,10 @@ export function b64decodeUtf8(b64: string): string {
  * path field is empty after stripping leading slashes.
  */
 export function parseGhParts(input: GhPartsInput): GhParts {
-  const repo = input.repo.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\.git$/, "");
+  const repo = input.repo
+    .trim()
+    .replace(/^https?:\/\/github\.com\//, "")
+    .replace(/\.git$/, "");
   const [owner, name] = repo.split("/");
   const path = input.path.trim().replace(/^\/+/, "");
   const branch = input.branch.trim() || "main";

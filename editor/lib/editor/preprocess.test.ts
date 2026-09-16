@@ -44,7 +44,7 @@ describe("preprocess", () => {
     // ASCII space). Assert against the imported PARA constant, not a hardcoded character.
     const expected = "y^[" + ["one", "two"].join(PARA) + "]";
     expect(preprocess("y[^a]\n\n[^a]: one\n\n    two")).toBe(expected);
-    expect(PARA).toBe(" ");
+    expect(PARA.codePointAt(0)).toBe(0x2029);
     expect(preprocess("y[^a]\n\n[^a]: one\n\n    two")).not.toBe("y^[one two]");
   });
 
@@ -91,11 +91,11 @@ describe("preprocess", () => {
 
   it("resolves multiple distinct defs and repeated references to the same def", () => {
     expect(preprocess("m[^1] and m[^1] again\n\n[^1]: shared")).toBe(
-      "m^[shared] and m^[shared] again"
+      "m^[shared] and m^[shared] again",
     );
-    expect(
-      preprocess("one[^1] two[^2]\n\n[^1]: first\n\n[^2]: second")
-    ).toBe("one^[first] two^[second]");
+    expect(preprocess("one[^1] two[^2]\n\n[^1]: first\n\n[^2]: second")).toBe(
+      "one^[first] two^[second]",
+    );
   });
 
   it("treats a tab as a valid indent for continuation lines", () => {

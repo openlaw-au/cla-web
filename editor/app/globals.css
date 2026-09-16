@@ -208,7 +208,11 @@ aside h2 {
 aside textarea {
   width: 100%;
   min-height: 120px;
-  font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    13px/1.5 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px;
@@ -267,7 +271,11 @@ aside .hint {
 
 .gh input {
   width: 100%;
-  font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    13px/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 6px 8px;

@@ -52,6 +52,16 @@ import { parseMarkdown, serializeDoc } from "../lib/editor/markdown";
 import { numberingPlugin } from "../lib/editor/numbering";
 import { SAMPLE } from "../lib/editor/sample";
 
+/**
+ * Extracts a human-readable message from a caught value of unknown shape: `err.message` when
+ * `err` is an `Error`, else its string coercion. Centralizes the `catch (err) { ... }` idiom
+ * repeated across this component's error-reporting paths (editor mount, Markdown load, and both
+ * GitHub load/save handlers) so they report failures identically.
+ */
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
 /** `localStorage` key the GitHub panel persists `{repo, path, branch}` under (never the token). */
 const GH_STORAGE_KEY = "clq-editor-gh";
 
@@ -105,7 +115,7 @@ function createInitialState(): EditorState {
  * The CLQ Proofing Editor's assembled React UI. See the file header for the full architecture;
  * this component has no props — it is a self-contained page-level assembly.
  */
-export default function ProofingEditor() {
+export default function ProofingEditor(): React.JSX.Element {
   const editorWrapRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
 
@@ -171,9 +181,7 @@ export default function ProofingEditor() {
         "Ready. Edit above; select a footnote to change it; load/save a cla-clq article on the right.",
       );
     } catch (err) {
-      setStatus(
-        "Editor failed to load: " + (err instanceof Error ? err.message : String(err)) + " — see console.",
-      );
+      setStatus("Editor failed to load: " + errorMessage(err) + " — see console.");
       console.error(err);
     }
 
@@ -196,7 +204,7 @@ export default function ProofingEditor() {
   }
 
   /** Replaces the mounted document with `doc`, matching the legacy `mount()`/`loadMarkdown()`. */
-  function replaceDoc(doc: ReturnType<typeof parseMarkdown>) {
+  function replaceDoc(doc: ReturnType<typeof parseMarkdown>): void {
     const state = EditorState.create({
       doc,
       plugins: [history(), keymap(clqKeymap), keymap(baseKeymap), numberingPlugin],
@@ -208,14 +216,14 @@ export default function ProofingEditor() {
   }
 
   /** Toolbar button click handler: runs the command against the live view, then refocuses it. */
-  function runToolbarCommand(run: Command) {
+  function runToolbarCommand(run: Command): void {
     const view = getView();
     run(view.state, view.dispatch.bind(view), view);
     view.focus();
   }
 
   /** "Selected footnote" textarea onChange: writes the new text into the node via setNodeMarkup. */
-  function handleFootnoteTextChange(text: string) {
+  function handleFootnoteTextChange(text: string): void {
     setSelectedText(text);
     if (selectedPos == null) return;
     const view = getView();
@@ -225,7 +233,7 @@ export default function ProofingEditor() {
   }
 
   /** Markdown panel "Load into editor ▸": parses `mdio` and replaces the document. */
-  function handleLoad() {
+  function handleLoad(): void {
     const src = mdio.trim();
     if (!src) {
       setStatus("Paste some Markdown first.");
@@ -235,20 +243,19 @@ export default function ProofingEditor() {
       replaceDoc(parseMarkdown(src));
       setStatus("Loaded.");
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setStatus("Parse error: " + message);
+      setStatus("Parse error: " + errorMessage(err));
       console.error(err);
     }
   }
 
   /** Markdown panel "◂ Export Markdown": serializes the current document into `mdio`. */
-  function handleExport() {
+  function handleExport(): void {
     setMdio(serializeDoc(getView().state.doc));
     setStatus("Exported Markdown.");
   }
 
   /** Markdown panel "Download .md": triggers a browser download of the serialized document. */
-  function handleDownload() {
+  function handleDownload(): void {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(
       new Blob([serializeDoc(getView().state.doc)], { type: "text/markdown" }),
@@ -258,13 +265,25 @@ export default function ProofingEditor() {
   }
 
   /** Persists the GitHub repo/path/branch fields (never the token). */
-  function rememberGh() {
+  function rememberGh(): void {
     writeStoredGhFields({ repo: ghRepo.trim(), path: ghPath.trim(), branch: ghBranch.trim() });
   }
 
-  function showGhMsg(text: string, cls: "" | "ok" | "err") {
+  /** Sets the GitHub panel's status message and its ok/err styling class. */
+  function showGhMsg(text: string, cls: "" | "ok" | "err"): void {
     setGhMsg(text);
     setGhMsgCls(cls);
+  }
+
+  /**
+   * Reports a caught GitHub load/save failure: surfaces {@link errorMessage} in the GitHub
+   * panel's error styling and logs the original error for debugging. Shared by {@link
+   * handleGhLoad} and {@link handleGhSave}'s catch blocks, which handle a failed request
+   * identically.
+   */
+  function reportGhError(err: unknown): void {
+    showGhMsg(errorMessage(err), "err");
+    console.error(err);
   }
 
   /** Resolves the current GitHub form fields via `parseGhParts`, surfacing validation errors. */
@@ -273,13 +292,13 @@ export default function ProofingEditor() {
     try {
       return parseGhParts(input);
     } catch (err) {
-      showGhMsg(err instanceof Error ? err.message : String(err), "err");
+      showGhMsg(errorMessage(err), "err");
       return null;
     }
   }
 
   /** GitHub panel "Load from GitHub ▸". */
-  async function handleGhLoad() {
+  async function handleGhLoad(): Promise<void> {
     const parts = parseCurrentGhParts();
     if (!parts) return;
     showGhMsg("Loading " + parts.path + " …", "");
@@ -291,14 +310,12 @@ export default function ProofingEditor() {
       showGhMsg("Loaded " + parts.path + " @ " + (result.sha || "").slice(0, 7) + ".", "ok");
       setStatus("Loaded " + parts.path + " from " + parts.owner + "/" + parts.name + ".");
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      showGhMsg(message, "err");
-      console.error(err);
+      reportGhError(err);
     }
   }
 
   /** GitHub panel "◂ Save to GitHub". */
-  async function handleGhSave() {
+  async function handleGhSave(): Promise<void> {
     const parts = parseCurrentGhParts();
     if (!parts) return;
     if (!parts.token) {
@@ -311,11 +328,19 @@ export default function ProofingEditor() {
       ghShaRef.current = result.sha;
       rememberGh();
       showGhMsg("Saved — commit " + (result.commit || "").slice(0, 7) + ".", "ok");
-      setStatus("Saved " + parts.path + " to " + parts.owner + "/" + parts.name + " (" + parts.branch + ").");
+      setStatus(
+        "Saved " +
+          parts.path +
+          " to " +
+          parts.owner +
+          "/" +
+          parts.name +
+          " (" +
+          parts.branch +
+          ").",
+      );
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      showGhMsg(message, "err");
-      console.error(err);
+      reportGhError(err);
     }
   }
 

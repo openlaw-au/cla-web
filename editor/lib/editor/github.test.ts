@@ -119,9 +119,9 @@ describe("parseGhParts", () => {
   });
 
   it("throws the exact message when repo has no slash", () => {
-    expect(() =>
-      parseGhParts({ repo: "not-a-repo", path: "a.md", branch: "", token: "" }),
-    ).toThrow("Repository must be owner/name, e.g. openlaw-au/cla-clq.");
+    expect(() => parseGhParts({ repo: "not-a-repo", path: "a.md", branch: "", token: "" })).toThrow(
+      "Repository must be owner/name, e.g. openlaw-au/cla-clq.",
+    );
   });
 
   it("throws the exact message when repo is empty", () => {
@@ -220,9 +220,7 @@ describe("loadFile", () => {
     expect(result).toEqual({ content: "hello — world", sha: "abc123" });
     expect(fetchFn).toHaveBeenCalledTimes(1);
     const [url, init] = fetchFn.mock.calls[0];
-    expect(url).toBe(
-      "https://api.github.com/repos/openlaw-au/cla-clq/contents/a.md?ref=main",
-    );
+    expect(url).toBe("https://api.github.com/repos/openlaw-au/cla-clq/contents/a.md?ref=main");
     expect(init).toEqual({
       headers: { Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" },
     });

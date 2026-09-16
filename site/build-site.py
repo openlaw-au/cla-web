@@ -15,10 +15,11 @@ The built issue PDFs and dist/archive.html are placed into dist/ by the Pages wo
 (they live in cla-clq); this script only generates index.html and never invents content.
 """
 import json, html, pathlib, argparse, sys
+from typing import Any, Optional, Sequence, Union
 
 HERE = pathlib.Path(__file__).parent
 
-def esc(s):
+def esc(s: Any) -> str:
     """Usage: HTML-escape any manifest/index value before interpolating it into the
     page template. Scope: called throughout build() for every user-authored string
     (titles, authors, citations, journal/association names). Protocol: coerces to
@@ -26,7 +27,7 @@ def esc(s):
     simply blank, never "None"), and always quote-escapes."""
     return html.escape(str(s or ""), quote=True)
 
-def load(p):
+def load(p: Union[str, pathlib.Path]) -> Optional[Any]:
     """Usage: load an optional/required JSON input file. Scope: used for both
     issues.json (manifest) and site/data/all_index.json (cumulative index).
     Protocol: returns the parsed JSON object if the path exists, else None —
@@ -35,7 +36,7 @@ def load(p):
     p = pathlib.Path(p)
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
 
-def articles_for(index, vol, num):
+def articles_for(index: Optional[Sequence[dict[str, Any]]], vol: Any, num: Any) -> list[dict[str, Any]]:
     """Usage: fallback lookup of an issue's article list from the cumulative index,
     used by build() when an issue entry in issues.json has no inline "articles".
     Scope: only called when an index was loaded (build() also short-circuits via
@@ -51,7 +52,11 @@ def articles_for(index, vol, num):
             return [a for a in e.get("articles", []) if a.get("category") in ("Article", "Case Note")]
     return []
 
-def build(issues_path, index_path, out_dir):
+def build(
+    issues_path: Union[str, pathlib.Path],
+    index_path: Union[str, pathlib.Path],
+    out_dir: Union[str, pathlib.Path],
+) -> None:
     """Usage: the site build entry point — reads the issues manifest (+ optional
     cumulative index) and writes dist/index.html. Scope: called by main() (the CLI)
     and directly by tests. Protocol: missing issues_path yields an empty issue list
@@ -146,7 +151,7 @@ def build(issues_path, index_path, out_dir):
     (out / "index.html").write_text(doc, encoding="utf-8")
     print(f"wrote {out/'index.html'} — {len(issues)} issue(s); archive linked: {have_archive}")
 
-def main(argv=None):
+def main(argv: Optional[Sequence[str]] = None) -> None:
     """Usage: CLI entry point for build-site.py. Scope: invoked by
     `if __name__ == "__main__"` (argv=None, so argparse parses sys.argv[1:]) and by
     the Pages workflow (`python3 site/build-site.py --out dist`); also directly

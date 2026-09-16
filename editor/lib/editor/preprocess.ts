@@ -83,8 +83,10 @@ export function preprocess(text: string): string {
     }
     out.push(lines[i]);
   }
-  let body = out.join("\n").replace(/\[\^([^\]]+)\]/g, (mm, id) =>
-    defs[id.trim()] != null ? "^[" + defs[id.trim()] + "]" : mm
-  );
+  let body = out
+    .join("\n")
+    .replace(/\[\^([^\]]+)\]/g, (mm, id) =>
+      defs[id.trim()] != null ? "^[" + defs[id.trim()] + "]" : mm,
+    );
   return body.replace(/\n{3,}/g, "\n\n").trim();
 }

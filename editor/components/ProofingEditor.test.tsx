@@ -28,7 +28,10 @@ beforeEach(() => {
   window.localStorage.clear();
   // jsdom doesn't implement createObjectURL/revokeObjectURL.
   if (!("createObjectURL" in URL)) {
-    Object.defineProperty(URL, "createObjectURL", { value: vi.fn(() => "blob:mock"), writable: true });
+    Object.defineProperty(URL, "createObjectURL", {
+      value: vi.fn(() => "blob:mock"),
+      writable: true,
+    });
   } else {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
   }
@@ -60,9 +63,8 @@ function getPmRoot(container: HTMLElement): HTMLElement {
 async function mockParseMarkdownToThrowAfterMount(toThrow: unknown) {
   vi.resetModules();
   vi.doMock("../lib/editor/markdown", async () => {
-    const actual = await vi.importActual<typeof import("../lib/editor/markdown")>(
-      "../lib/editor/markdown",
-    );
+    const actual =
+      await vi.importActual<typeof import("../lib/editor/markdown")>("../lib/editor/markdown");
     let calls = 0;
     return {
       ...actual,
@@ -176,7 +178,9 @@ describe("ProofingEditor", () => {
   });
 
   it("clicking Load with unparsable markdown shows a Parse error status (Error thrown)", async () => {
-    const MockedProofingEditor = await mockParseMarkdownToThrowAfterMount(new Error("mock parse failure"));
+    const MockedProofingEditor = await mockParseMarkdownToThrowAfterMount(
+      new Error("mock parse failure"),
+    );
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const user = userEvent.setup();
@@ -338,11 +342,9 @@ describe("ProofingEditor", () => {
     });
 
     it("tolerates localStorage.getItem throwing (private mode) — fields stay blank", () => {
-      const spy = vi
-        .spyOn(Storage.prototype, "getItem")
-        .mockImplementation(() => {
-          throw new Error("blocked");
-        });
+      const spy = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+        throw new Error("blocked");
+      });
       render(<ProofingEditor />);
       const { repo } = ghInputs();
       expect(repo.value).toBe("");
@@ -400,9 +402,8 @@ describe("ProofingEditor", () => {
       // mocked here rather than reached organically.
       vi.resetModules();
       vi.doMock("../lib/editor/github", async () => {
-        const actual = await vi.importActual<typeof import("../lib/editor/github")>(
-          "../lib/editor/github",
-        );
+        const actual =
+          await vi.importActual<typeof import("../lib/editor/github")>("../lib/editor/github");
         return {
           ...actual,
           parseGhParts: () => {
@@ -432,10 +433,7 @@ describe("ProofingEditor", () => {
 
     it("Load from GitHub: success path fetches, replaces the doc, persists fields, and shows sha", async () => {
       const user = userEvent.setup();
-      const content = Buffer.from(
-        "# Loaded from GitHub\n\nBody text.",
-        "utf-8",
-      ).toString("base64");
+      const content = Buffer.from("# Loaded from GitHub\n\nBody text.", "utf-8").toString("base64");
       const fetchMock = vi.fn(async () => ({
         ok: true,
         status: 200,
@@ -458,7 +456,9 @@ describe("ProofingEditor", () => {
 
       expect(getPmRoot(container).textContent).toContain("Loaded from GitHub");
       expect(screen.getByText(/^Loaded issues\/a\.md @ abcdef1\./)).toBeInTheDocument();
-      expect(screen.getByText(/^Loaded issues\/a\.md from openlaw-au\/cla-clq\./)).toBeInTheDocument();
+      expect(
+        screen.getByText(/^Loaded issues\/a\.md from openlaw-au\/cla-clq\./),
+      ).toBeInTheDocument();
 
       const stored = JSON.parse(window.localStorage.getItem(GH_STORAGE_KEY) || "{}");
       // rememberGh persists the raw (un-defaulted) branch field, matching editor/app.js's
@@ -617,7 +617,10 @@ describe("ProofingEditor", () => {
         ok: true,
         status: 200,
         statusText: "OK",
-        json: async () => ({ content: { sha: "newsha1234567" }, commit: { sha: "commitsha1234567" } }),
+        json: async () => ({
+          content: { sha: "newsha1234567" },
+          commit: { sha: "commitsha1234567" },
+        }),
       }));
       vi.stubGlobal("fetch", fetchMock as unknown as typeof fetch);
 
@@ -645,7 +648,11 @@ describe("ProofingEditor", () => {
       ).toBeInTheDocument();
 
       const stored = JSON.parse(window.localStorage.getItem(GH_STORAGE_KEY) || "{}");
-      expect(stored).toEqual({ repo: "openlaw-au/cla-clq", path: "issues/a.md", branch: "release/v2" });
+      expect(stored).toEqual({
+        repo: "openlaw-au/cla-clq",
+        path: "issues/a.md",
+        branch: "release/v2",
+      });
     });
 
     it("Save to GitHub: error response shows the GitHub error message", async () => {
@@ -678,9 +685,8 @@ describe("ProofingEditor", () => {
       // than reached organically.
       vi.resetModules();
       vi.doMock("../lib/editor/github", async () => {
-        const actual = await vi.importActual<typeof import("../lib/editor/github")>(
-          "../lib/editor/github",
-        );
+        const actual =
+          await vi.importActual<typeof import("../lib/editor/github")>("../lib/editor/github");
         return {
           ...actual,
           saveFile: async () => {

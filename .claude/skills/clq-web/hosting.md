@@ -12,7 +12,7 @@ The repo's two jobs deploy to two different targets:
 | Component | Target | Config |
 |---|---|---|
 | Public site (`site/`) | GitHub Pages | `.github/workflows/pages.yml` (exists today) |
-| Editor (`editor/`) | Cloudflare Workers, via OpenNext | `open-next.config.ts`, `wrangler.toml` (**future** — not yet in the repo; the editor is still being rewritten) |
+| Editor (`editor/`) | Cloudflare Workers, via OpenNext | `open-next.config.ts`, `wrangler.toml` (present, at `editor/`) |
 
 ## Public site — GitHub Pages (`pages.yml`)
 
@@ -44,14 +44,13 @@ link PDFs at all right now (see site-build skill: `pdf = None` is hardcoded). Do
 assume PDF-copying logic exists just because the directory is created; that's staged for
 when/if a gated-download flow is built.
 
-## Editor — Cloudflare Workers via OpenNext (future)
+## Editor — Cloudflare Workers via OpenNext
 
-Per `CLAUDE.md` and `README.md`, the intended deploy is **OpenNext → Cloudflare
+Per `CLAUDE.md` and `README.md`, the deploy is **OpenNext → Cloudflare
 Workers**, the standard pattern for a Next.js 16 App Router app on Workers:
-`open-next.config.ts` at the editor root building the Worker, deployed with
-`wrangler` (`wrangler.toml`/`wrangler.jsonc`). Neither file exists in the repo yet — the
-Next.js rewrite (`components/ProofingEditor.tsx`, `lib/editor/*`) is still in progress.
-When standing this up:
+`open-next.config.ts` at the editor root builds the Worker, deployed with
+`wrangler` (`wrangler.toml`). Both files are present in `editor/` today. When
+working with this setup:
 
 - Needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` configured for
   Wrangler/OpenNext (README's Deployment prerequisites section).

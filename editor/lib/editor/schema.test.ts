@@ -33,7 +33,9 @@ describe("clqSchema smallcaps mark", () => {
 
   it("parseDOM has a tag rule matching span.clq-sc", () => {
     const rules = clqSchema.marks.smallcaps.spec.parseDOM ?? [];
-    const tagRule = rules.find((r): r is typeof rules[number] & { tag: string } => "tag" in r && r.tag === "span.clq-sc");
+    const tagRule = rules.find(
+      (r): r is (typeof rules)[number] & { tag: string } => "tag" in r && r.tag === "span.clq-sc",
+    );
     expect(tagRule).toBeDefined();
   });
 

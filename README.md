@@ -53,31 +53,31 @@ fine option wherever a zero-build surface is wanted.
 ## Architecture
 
 ```
-                     ┌──────────────────────────┐
-                     │   Next.js 16 editor app    │
-                     │  components/ProofingEditor │
-                     │   (ProseMirror, 'use client')│
-                     └─────────────┬─────────────┘
-                                   │ GitHub contents API
-                                   │ (load / save, token in memory only)
-                                   ▼
-                     ┌──────────────────────────┐
+                     ┌───────────────────────────────┐
+                     │     Next.js 16 editor app     │
+                     │   components/ProofingEditor   │
+                     │  (ProseMirror, 'use client')  │
+                     └───────────────────────────────┘
+                                     │ GitHub contents API
+                                     │ (load / save, token in memory only)
+                                     ▼
+                     ┌────────────────────────────┐
                      │     openlaw-au/cla-clq     │
-                     │   (Markdown source + PDFs) │
-                     └─────────────┬─────────────┘
-                                   │
+                     │  (Markdown source + PDFs)  │
+                     └────────────────────────────┘
+                                    │
                      cla-tamara-print pipeline (CI)
-                                   │
-                                   ▼
-                              press PDF
-                                   │
-                     ┌─────────────┴─────────────┐
-                     │   site/issues.json          │
-                     │   site/build-site.py         │
-                     │   → dist/index.html          │
-                     └─────────────┬─────────────┘
-                                   │
-                          GitHub Pages (public site)
+                                    │
+                                    ▼
+                               press PDF
+                                    │
+                     ┌──────────────────────┐
+                     │   site/issues.json   │
+                     │  site/build-site.py  │
+                     │  → dist/index.html   │
+                     └──────────────────────┘
+                                 │
+                     GitHub Pages (public site)
 
    editor deploy:  OpenNext → Cloudflare Workers
 ```

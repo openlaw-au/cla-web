@@ -54,7 +54,11 @@ import type Token from "markdown-it/lib/token.mjs";
 import type StateInline from "markdown-it/lib/rules_inline/state_inline.mjs";
 import type { Node } from "prosemirror-model";
 import MarkdownIt from "markdown-it";
-import { MarkdownParser, MarkdownSerializer, defaultMarkdownSerializer } from "prosemirror-markdown";
+import {
+  MarkdownParser,
+  MarkdownSerializer,
+  defaultMarkdownSerializer,
+} from "prosemirror-markdown";
 import { clqSchema, PARA } from "./schema";
 import { preprocess } from "./preprocess";
 
@@ -172,10 +176,17 @@ export const parser: MarkdownParser = new MarkdownParser(clqSchema, md, {
   paragraph: { block: "paragraph" },
   list_item: { block: "list_item" },
   bullet_list: { block: "bullet_list" },
-  ordered_list: { block: "ordered_list", getAttrs: (t: Token) => ({ order: +(t.attrGet("start") ?? "") || 1 }) },
+  ordered_list: {
+    block: "ordered_list",
+    getAttrs: (t: Token) => ({ order: +(t.attrGet("start") ?? "") || 1 }),
+  },
   heading: { block: "heading", getAttrs: (t: Token) => ({ level: +t.tag.slice(1) }) },
   code_block: { block: "code_block", noCloseToken: true },
-  fence: { block: "code_block", getAttrs: (t: Token) => ({ params: t.info || "" }), noCloseToken: true },
+  fence: {
+    block: "code_block",
+    getAttrs: (t: Token) => ({ params: t.info || "" }),
+    noCloseToken: true,
+  },
   hr: { node: "horizontal_rule" },
   image: {
     node: "image",
@@ -190,7 +201,10 @@ export const parser: MarkdownParser = new MarkdownParser(clqSchema, md, {
   strong: { mark: "strong" },
   code_inline: { mark: "code", noCloseToken: true },
   smallcaps: { mark: "smallcaps" },
-  link: { mark: "link", getAttrs: (t: Token) => ({ href: t.attrGet("href"), title: t.attrGet("title") || null }) },
+  link: {
+    mark: "link",
+    getAttrs: (t: Token) => ({ href: t.attrGet("href"), title: t.attrGet("title") || null }),
+  },
   footnote: {
     node: "footnote",
     // The custom clq_footnote rule stores the raw bracketed body (possibly containing the
@@ -252,8 +266,13 @@ export const serializer: MarkdownSerializer = new MarkdownSerializer(
     // delimiters aren't freely reorderable the way e.g. em/strong are) and, like emphasis,
     // needs enclosing whitespace expelled outside the mark delimiters per CommonMark's span
     // rules.
-    smallcaps: { open: "[", close: "]{.smallcaps}", mixable: false, expelEnclosingWhitespace: true },
-  }
+    smallcaps: {
+      open: "[",
+      close: "]{.smallcaps}",
+      mixable: false,
+      expelEnclosingWhitespace: true,
+    },
+  },
 );
 
 /**
@@ -280,7 +299,16 @@ export function serializeDoc(doc: Node): string {
   if (fnDefs.length) {
     const defs = fnDefs.map((t, i) => {
       const paras = t.split(/\n\s*\n/).map((p) => p.replace(/\s*\n\s*/g, " ").trim());
-      return "[^" + (i + 1) + "]: " + paras[0] + paras.slice(1).map((p) => "\n\n    " + p).join("");
+      return (
+        "[^" +
+        (i + 1) +
+        "]: " +
+        paras[0] +
+        paras
+          .slice(1)
+          .map((p) => "\n\n    " + p)
+          .join("")
+      );
     });
     out += "\n\n" + defs.join("\n\n");
   }

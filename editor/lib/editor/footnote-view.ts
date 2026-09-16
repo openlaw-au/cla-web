@@ -89,7 +89,9 @@ export class FootnoteView implements NodeView {
       e.preventDefault();
       const pos = this.getPos();
       if (pos == null) return;
-      this.view.dispatch(this.view.state.tr.setSelection(NodeSelection.create(this.view.state.doc, pos)));
+      this.view.dispatch(
+        this.view.state.tr.setSelection(NodeSelection.create(this.view.state.doc, pos)),
+      );
       this.view.focus();
     });
   }

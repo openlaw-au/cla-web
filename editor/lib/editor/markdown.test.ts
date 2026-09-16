@@ -276,7 +276,7 @@ describe("basic CommonMark round-trips (headings/em/strong/blockquote/lists)", (
     expect(out).toContain("const x = 1;");
   });
 
-  it("parses a bare fence with no info string (fence getAttrs' `t.info || \"\"` falsy branch)", () => {
+  it('parses a bare fence with no info string (fence getAttrs\' `t.info || ""` falsy branch)', () => {
     const doc = parseMarkdown("```\nplain fence\n```");
     let sawCodeBlock = false;
     doc.descendants((node) => {
@@ -352,7 +352,7 @@ describe("parser getAttrs edge cases exercised directly", () => {
     expect(text).toBe("para one\n\npara two");
   });
 
-  it("parses an empty inline footnote (footnote getAttrs' `t.content || \"\"` falsy branch)", () => {
+  it('parses an empty inline footnote (footnote getAttrs\' `t.content || ""` falsy branch)', () => {
     const doc = parseMarkdown("x^[]");
     let text: string | undefined;
     let sawFootnote = false;

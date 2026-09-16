@@ -27,10 +27,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 /** The round-trip contract fixture — every node/mark the editor's schema supports, once. */
-const FIXTURE = fs.readFileSync(
-  path.join(__dirname, "fixtures/sample.md"),
-  "utf8",
-);
+const FIXTURE = fs.readFileSync(path.join(__dirname, "fixtures/sample.md"), "utf8");
 
 /**
  * Collapses all runs of whitespace to a single space and trims, so semantically-equivalent
@@ -42,12 +39,15 @@ function normalizeWs(s: string): string {
 }
 
 /** Locates the "Markdown in / out" panel's textarea (the `.io` aside section). */
-function mdTextarea(page: import("@playwright/test").Page) {
+function mdTextarea(page: import("@playwright/test").Page): import("@playwright/test").Locator {
   return page.locator(".io textarea");
 }
 
 /** Loads `markdown` into the editor via the Markdown-in textarea + "Load into editor" button. */
-async function loadMarkdown(page: import("@playwright/test").Page, markdown: string) {
+async function loadMarkdown(
+  page: import("@playwright/test").Page,
+  markdown: string,
+): Promise<void> {
   await mdTextarea(page).fill(markdown);
   await page.getByRole("button", { name: "Load into editor ▸" }).click();
 }

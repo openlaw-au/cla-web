@@ -36,9 +36,12 @@ function capture() {
   const dispatch = (t: Transaction) => {
     tr = t;
   };
-  return { dispatch, get tr() {
-    return tr;
-  } };
+  return {
+    dispatch,
+    get tr() {
+      return tr;
+    },
+  };
 }
 
 describe("insertFootnote", () => {
@@ -215,9 +218,7 @@ describe("toolbarSpec", () => {
   it("¶ sets the block type back to paragraph", () => {
     const doc = Node.fromJSON(clqSchema, {
       type: "doc",
-      content: [
-        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "hi" }] },
-      ],
+      content: [{ type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "hi" }] }],
     });
     const state = EditorState.create({ schema: clqSchema, doc, plugins: [history()] });
     const cap = capture();

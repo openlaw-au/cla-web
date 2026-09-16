@@ -13,6 +13,6 @@
  */
 import ProofingEditor from "../components/ProofingEditor";
 
-export default function Home() {
+export default function Home(): React.JSX.Element {
   return <ProofingEditor />;
 }
